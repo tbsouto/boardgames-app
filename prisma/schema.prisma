@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Game {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  minAge      Int
+  players     String
+  time        String
+  image       String
+  favorite    Boolean @default(false)
+  category    String  @default("General")
+  rating      Int     @default(0)
+  notes       String  @default("")
+  sessions    PlaySession[]
+  expansions  Expansion[]
+}
+
+model PlaySession {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now())
+
+  players   String
+  notes     String   @default("")
+
+  gameId    Int
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model Expansion {
+
+  id Int @id @default(autoincrement())
+  name String
+
+  gameId Int
+
+  game Game @relation(fields: [gameId], references: [id], onDelete:Cascade)
+
+}

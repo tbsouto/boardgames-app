@@ -1,0 +1,38 @@
+export const games = [
+  {
+    id: "1",
+    name: "Catan",
+    description: "Juego de comercio y estrategia.",
+    minAge: 10,
+    players: "3-4",
+    time: "60-120 min",
+    image: "/images/catan.jpg",
+  },
+  {
+    id: "2",
+    name: "Terraforming Mars",
+    description: "Coloniza Marte y desarrolla proyectos.",
+    minAge: 12,
+    players: "1-5",
+    time: "120 min",
+    image: "/images/terraforming-mars.jpg",
+  },
+  {
+    id: "3",
+    name: "Wingspan",
+    description: "Colecciona aves y crea hábitats.",
+    minAge: 10,
+    players: "1-5",
+    time: "40-70 min",
+    image: "/images/wingspan.jpg",
+  },
+  {
+    id: "4",
+    name: "Carcassonne",
+    description: "Construcción de ciudades y caminos.",
+    minAge: 7,
+    players: "2-5",
+    time: "30-45 min",
+    image: "/images/carcassonne.jpg",
+  },
+];

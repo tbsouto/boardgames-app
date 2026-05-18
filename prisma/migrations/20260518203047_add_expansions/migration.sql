@@ -1,0 +1,7 @@
+-- CreateTable
+CREATE TABLE "Expansion" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "gameId" INTEGER NOT NULL,
+    CONSTRAINT "Expansion_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
