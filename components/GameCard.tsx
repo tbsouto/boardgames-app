@@ -179,5 +179,5 @@ export default function GameCard({
         </div>
       </div>
     </motion.div>
-  );
+  );  
 }
