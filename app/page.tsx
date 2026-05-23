@@ -811,16 +811,15 @@ export default function Home() {
     bg-zinc-800
     border border-zinc-700
     cursor-pointer
-    hover:bg-zinc-700
-    transition
   "
               >
 
-                📷 Seleccionar imagen
+                📸 Hacer foto
 
                 <input
                   type="file"
                   accept="image/*"
+                  capture="environment"
                   className="hidden"
 
                   onChange={async (e) => {
@@ -855,21 +854,7 @@ export default function Home() {
                   }}
 
                 />
-                {image && (
 
-                  <img
-                    src={image}
-                    alt="Preview"
-                    className="
-    w-full
-    h-48
-    object-cover
-    rounded-2xl
-    mt-4
-  "
-                  />
-
-                )}
               </label>
 
               <button
