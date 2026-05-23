@@ -802,48 +802,75 @@ export default function Home() {
                 className="w-full mt-6 p-4 rounded-2xl bg-zinc-800 border border-zinc-700 min-h-[220px]"
               />
 
-              <input
-                type="file"
-                accept="image/*"
+              <label
+                className="
+    flex items-center
+    justify-center
+    p-4
+    rounded-2xl
+    bg-zinc-800
+    border border-zinc-700
+    cursor-pointer
+    hover:bg-zinc-700
+    transition
+  "
+              >
 
-                onChange={async (e) => {
+                📷 Seleccionar imagen
 
-                  const file =
-                    e.target.files?.[0];
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
 
-                  if (!file) return;
+                  onChange={async (e) => {
 
-                  const formData =
-                    new FormData();
+                    const file =
+                      e.target.files?.[0];
 
-                  formData.append(
-                    "file",
-                    file
-                  );
+                    if (!file) return;
 
-                  const res =
-                    await fetch(
-                      "/api/upload",
-                      {
-                        method: "POST",
-                        body: formData,
-                      }
+                    const formData =
+                      new FormData();
+
+                    formData.append(
+                      "file",
+                      file
                     );
 
-                  const data =
-                    await res.json();
+                    const res =
+                      await fetch(
+                        "/api/upload",
+                        {
+                          method: "POST",
+                          body: formData,
+                        }
+                      );
 
-                  setImage(data.url);
+                    const data =
+                      await res.json();
 
-                }}
+                    setImage(data.url);
 
-                className="
-                  w-full mt-4 p-4
-                  rounded-2xl
-                  bg-zinc-800
-                  border border-zinc-700
-                "
-              />
+                  }}
+
+                />
+                {image && (
+
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="
+    w-full
+    h-48
+    object-cover
+    rounded-2xl
+    mt-4
+  "
+                  />
+
+                )}
+              </label>
 
               <button
                 onClick={async () => {
