@@ -12,6 +12,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "better-sqlite3": "^12.10.0",
+    "cloudinary": "^2.10.0",
     "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.16.0",

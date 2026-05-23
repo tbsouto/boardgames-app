@@ -803,15 +803,46 @@ export default function Home() {
               />
 
               <input
-                type="text"
-                placeholder="Ruta imagen"
-                value={image}
-                onChange={(e) =>
-                  setImage(
-                    e.target.value
-                  )
-                }
-                className="w-full mt-6 p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
+                type="file"
+                accept="image/*"
+
+                onChange={async (e) => {
+
+                  const file =
+                    e.target.files?.[0];
+
+                  if (!file) return;
+
+                  const formData =
+                    new FormData();
+
+                  formData.append(
+                    "file",
+                    file
+                  );
+
+                  const res =
+                    await fetch(
+                      "/api/upload",
+                      {
+                        method: "POST",
+                        body: formData,
+                      }
+                    );
+
+                  const data =
+                    await res.json();
+
+                  setImage(data.url);
+
+                }}
+
+                className="
+                  w-full mt-4 p-4
+                  rounded-2xl
+                  bg-zinc-800
+                  border border-zinc-700
+                "
               />
 
               <button

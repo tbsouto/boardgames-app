@@ -1,0 +1,17 @@
+{
+    "name": "BoardGames Collection",
+    "short_name": "BoardGames",
+    "description": "Tu colección personal de juegos",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#111827",
+    "theme_color": "#111827",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "/icon.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
