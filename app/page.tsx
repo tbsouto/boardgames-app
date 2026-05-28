@@ -811,6 +811,9 @@ export default function Home() {
     bg-zinc-800
     border border-zinc-700
     cursor-pointer
+    hover:bg-zinc-700
+    transition
+    mt-4
   "
               >
 
@@ -848,7 +851,7 @@ export default function Home() {
 
                     const data =
                       await res.json();
-                    console.log(data);
+
                     setImage(data.url);
 
                   }}
@@ -856,7 +859,21 @@ export default function Home() {
                 />
 
               </label>
+              {image && (
 
+                <img
+                  src={image}
+                  alt="Preview"
+                  className="
+    w-full
+    h-48
+    object-cover
+    rounded-2xl
+    mt-4
+  "
+                />
+
+              )}
               <button
                 onClick={async () => {
                   if (editingGame) {

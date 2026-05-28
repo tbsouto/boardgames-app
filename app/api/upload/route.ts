@@ -4,6 +4,9 @@ import { v2 as cloudinary }
 import { NextResponse }
     from "next/server";
 
+import imageCompression
+    from "browser-image-compression";
+
 cloudinary.config({
 
     cloud_name:
@@ -58,9 +61,16 @@ export async function POST(
             );
 
         }
-
+        const compressedFile =
+            await imageCompression(
+                file,
+                {
+                    maxSizeMB: 0.3,
+                    maxWidthOrHeight: 1200,
+                }
+            );
         const bytes =
-            await file.arrayBuffer();
+            await compressedFile.arrayBuffer();
 
         const buffer =
             Buffer.from(bytes);
@@ -107,17 +117,17 @@ export async function POST(
     } catch (error) {
 
         console.error(
-          "UPLOAD ERROR:",
-          error
-        );
-      
-        return NextResponse.json(
-          {
+            "UPLOAD ERROR:",
             error
-          },
-          { status: 500 }
         );
-      
-      }
+
+        return NextResponse.json(
+            {
+                error
+            },
+            { status: 500 }
+        );
+
+    }
 
 }
