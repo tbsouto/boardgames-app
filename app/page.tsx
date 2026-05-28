@@ -91,6 +91,7 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [search]);
   const addGame = async () => {
+    console.log(image);
     await fetch("/api/games", {
       method: "POST",
       headers: {

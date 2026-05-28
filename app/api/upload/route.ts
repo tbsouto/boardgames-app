@@ -4,9 +4,6 @@ import { v2 as cloudinary }
 import { NextResponse }
     from "next/server";
 
-import imageCompression
-    from "browser-image-compression";
-
 cloudinary.config({
 
     cloud_name:
@@ -61,16 +58,8 @@ export async function POST(
             );
 
         }
-        const compressedFile =
-            await imageCompression(
-                file,
-                {
-                    maxSizeMB: 0.3,
-                    maxWidthOrHeight: 1200,
-                }
-            );
         const bytes =
-            await compressedFile.arrayBuffer();
+            await file.arrayBuffer();
 
         const buffer =
             Buffer.from(bytes);
