@@ -106,16 +106,18 @@ export async function POST(
 
     } catch (error) {
 
-        console.error(error);
-
-        return NextResponse.json(
-            {
-                error:
-                    "Upload failed"
-            },
-            { status: 500 }
+        console.error(
+          "UPLOAD ERROR:",
+          error
         );
-
-    }
+      
+        return NextResponse.json(
+          {
+            error
+          },
+          { status: 500 }
+        );
+      
+      }
 
 }
