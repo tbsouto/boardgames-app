@@ -45,7 +45,6 @@ export default function Home() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [expansions, setExpansions] = useState<any[]>([]);
   const [expansionName, setExpansionName] = useState("");
-  const [bggResults, setBggResults] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const searchGames = async () => {
     setLoading(true);
@@ -91,32 +90,7 @@ export default function Home() {
 
     return () => clearTimeout(timeout);
   }, [search]);
-  const searchBGG =
-    async () => {
 
-      if (!name) return;
-      console.log("Buscando BGG");
-      const res =
-        await fetch(
-          `/api/bgg-search?q=${name}`
-        );
-
-      if (!res.ok) {
-
-        console.error(
-          "BGG search failed"
-        );
-
-        return;
-
-      }
-
-      const data =
-        await res.json();
-
-      setBggResults(data);
-
-    };
   const addGame = async () => {
     setSaving(true);
 
@@ -850,20 +824,6 @@ export default function Home() {
                       border border-zinc-700
                     "
                   />
-
-                  <button
-                    type="button"
-                    onClick={searchBGG}
-                    className="
-                      px-4
-                      rounded-2xl
-                      bg-blue-600
-                      hover:bg-blue-500
-                      transition
-                    "
-                  >
-                    🔍
-                  </button>
                 </div>
                 <input
                   type="number"
@@ -895,22 +855,6 @@ export default function Home() {
                   className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
                 />
 
-                {bggResults.map((game) => (
-                  <button
-                    key={game.id}
-                    type="button"
-                    className="
-                      w-full
-                      p-3
-                      bg-zinc-800
-                      rounded-xl
-                      mt-2
-                      text-left
-                    "
-                  >
-                    {game.name}
-                  </button>
-                ))}
                 <select
                   value={category}
                   onChange={(e) =>
