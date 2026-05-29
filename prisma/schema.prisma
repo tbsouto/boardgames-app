@@ -9,7 +9,7 @@ datasource db {
 
 model Game {
   id          Int    @id @default(autoincrement())
-  name        String
+  name        String @unique
   description String
   minAge      Int
   players     String

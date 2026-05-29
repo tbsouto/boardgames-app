@@ -4,7 +4,36 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+    const existing =
+    await prisma.game.findMany({
+      where: {
+        name: {
+          contains: body.name.trim(),
+        },
+      },
+    });
+  
+  const duplicate =
+    existing.find(
+      game =>
+        game.name.trim().toLowerCase() ===
+        body.name.trim().toLowerCase()
+    );
+  
+  if (duplicate) {
+  
+    return Response.json(
+      {
+        error:
+          "Ese juego ya existe",
+      },
+      {
+        status: 400,
+      }
+    );
+  
+  }
+  
     const game = await prisma.game.create({
       data: {
         name: body.name,

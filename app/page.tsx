@@ -45,7 +45,8 @@ export default function Home() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [expansions, setExpansions] = useState<any[]>([]);
   const [expansionName, setExpansionName] = useState("");
-
+  const [bggResults, setBggResults] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
   const searchGames = async () => {
     setLoading(true);
 
@@ -90,24 +91,79 @@ export default function Home() {
 
     return () => clearTimeout(timeout);
   }, [search]);
-  const addGame = async () => {
-    console.log(image);
-    await fetch("/api/games", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        description,
-        players,
-        time,
-        minAge,
-        image,
-        category,
-      }),
-    });
+  const searchBGG =
+    async () => {
 
+      if (!name) return;
+      console.log("Buscando BGG");
+      const res =
+        await fetch(
+          `/api/bgg-search?q=${name}`
+        );
+
+      if (!res.ok) {
+
+        console.error(
+          "BGG search failed"
+        );
+
+        return;
+
+      }
+
+      const data =
+        await res.json();
+
+      setBggResults(data);
+
+    };
+  const addGame = async () => {
+    setSaving(true);
+
+    if (
+      !name.trim() ||
+      !players.trim() ||
+      !time.trim() ||
+      !minAge
+    ) {
+
+      alert(
+        "Completa los campos obligatorios"
+      );
+
+      setSaving(false);
+
+      return false;
+    }
+    const res =
+      await fetch("/api/games", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          players,
+          time,
+          minAge,
+          image,
+          category,
+        }),
+      });
+    if (!res.ok) {
+
+      const error =
+        await res.json();
+
+      alert(
+        error.error
+      );
+      setSaving(false);
+
+      return false;
+
+    }
     // RECARGAR DESDE DB
     await searchGames();
 
@@ -119,6 +175,7 @@ export default function Home() {
     setMinAge("");
     setImage("");
     setCategory("");
+    setSaving(false);
   };
   const editGame = async () => {
     await fetch("/api/games", {
@@ -268,7 +325,13 @@ export default function Home() {
     };
   const deleteExpansion =
     async (id: number) => {
-
+      if (
+        !confirm(
+          "¿Seguro que quieres borrar este juego?"
+        )
+      ) {
+        return;
+      }
       await fetch(
 
         `/api/expansions?id=${id}`,
@@ -442,7 +505,26 @@ export default function Home() {
     return `Hace ${weeks} semanas`;
 
   };
+  const clearFilters =
+    async () => {
 
+      setSearch("");
+
+      setCategoryFilter("");
+
+      setShowFavorites(false);
+
+      const res =
+        await fetch(
+          "/api/search?q="
+        );
+
+      const data =
+        await res.json();
+
+      setGames(data);
+
+    };
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
@@ -643,6 +725,7 @@ export default function Home() {
             <option value="Familiar">👨‍👩‍👧 Familiar</option>
             <option value="Eurogame">🏰 Eurogame</option>
           </select>
+
           <div className="flex bg-zinc-800 rounded-xl overflow-hidden">
 
             <button
@@ -670,6 +753,19 @@ export default function Home() {
             </button>
 
           </div>
+          <button
+            onClick={() => {
+
+              setSearch("");
+
+              setCategoryFilter("all");
+
+              setShowFavorites(false);
+
+            }}
+          >
+            Limpiar filtros
+          </button>
         </div>
 
       </section>
@@ -736,16 +832,39 @@ export default function Home() {
 
               <div className="grid md:grid-cols-2 gap-4">
 
-                <input
-                  type="text"
-                  placeholder="Nombre"
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
-                  className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
-                />
+                <div className="flex gap-2">
 
+                  <input
+                    value={name}
+                    onChange={(e) =>
+                      setName(e.target.value)
+                    }
+
+                    placeholder="Nombre"
+
+                    className="
+                      flex-1
+                      p-4
+                      rounded-2xl
+                      bg-zinc-800
+                      border border-zinc-700
+                    "
+                  />
+
+                  <button
+                    type="button"
+                    onClick={searchBGG}
+                    className="
+                      px-4
+                      rounded-2xl
+                      bg-blue-600
+                      hover:bg-blue-500
+                      transition
+                    "
+                  >
+                    🔍
+                  </button>
+                </div>
                 <input
                   type="number"
                   placeholder="Edad mínima"
@@ -776,6 +895,22 @@ export default function Home() {
                   className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
                 />
 
+                {bggResults.map((game) => (
+                  <button
+                    key={game.id}
+                    type="button"
+                    className="
+                      w-full
+                      p-3
+                      bg-zinc-800
+                      rounded-xl
+                      mt-2
+                      text-left
+                    "
+                  >
+                    {game.name}
+                  </button>
+                ))}
                 <select
                   value={category}
                   onChange={(e) =>
@@ -880,15 +1015,24 @@ export default function Home() {
                   if (editingGame) {
                     await editGame();
                   } else {
-                    await addGame();
-                    setShowModal(false);
+                    const ok =
+                      await addGame();
+
+                    if (ok) {
+                      setShowModal(false);
+                    }
                   }
                 }}
                 className="mt-8 bg-green-600 hover:bg-green-700 transition px-8 py-4 rounded-2xl font-semibold"
+                disabled={saving}
               >
-                {editingGame
-                  ? "Guardar cambios"
-                  : "Guardar juego"}
+                {
+                  saving
+                    ? "Guardando..."
+                    : editingGame
+                      ? "Guardar cambios"
+                      : "Añadir juego"
+                }
               </button>
 
             </div>

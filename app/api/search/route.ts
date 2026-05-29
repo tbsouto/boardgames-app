@@ -6,18 +6,27 @@ export async function GET(req: Request) {
 
   const query =
     searchParams.get("q") || "";
-    console.log(
-      process.env.DATABASE_URL
-    );
+  console.log(
+    process.env.DATABASE_URL
+  );
   const games = await prisma.game.findMany({
-    include:{
-      sessions:true,
-      expansions:true
-    },
-    where: {
-      name: {
-        contains: query,
+    include: {
+      sessions: {
+        orderBy: {
+          date: "desc",
+        },
       },
+      expansions: true
+    },
+    where: query?.trim()
+      ? {
+        name: {
+          contains: query,
+        },
+      }
+      : undefined,
+    orderBy: {
+      name: "asc",
     },
   });
 

@@ -155,9 +155,6 @@ export default function GameCard({
               </span>
             ))}
           </div>
-          <p className="mt-2 text-sm text-zinc-400 line-clamp-2">
-            {game.description}
-          </p>
 
           <div className="mt-4">
 
