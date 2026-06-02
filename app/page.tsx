@@ -46,6 +46,8 @@ export default function Home() {
   const [expansions, setExpansions] = useState<any[]>([]);
   const [expansionName, setExpansionName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
   const searchGames = async () => {
     setLoading(true);
 
@@ -79,6 +81,7 @@ export default function Home() {
 
     setLoading(false);
   };
+
   useEffect(() => {
     searchGames();
   }, []);
@@ -90,7 +93,107 @@ export default function Home() {
 
     return () => clearTimeout(timeout);
   }, [search]);
+  const downloadBackup =
+    async () => {
 
+      const res =
+        await fetch(
+          "/api/backup"
+        );
+
+      const data =
+        await res.json();
+
+      const blob =
+        new Blob(
+
+          [
+            JSON.stringify(
+              data,
+              null,
+              2
+            )
+          ],
+
+          {
+            type:
+              "application/json",
+          }
+
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+      a.href = url;
+
+      a.download =
+        `boardgames-backup-${new Date()
+          .toISOString()
+          .slice(0, 10)}.json`;
+
+      a.click();
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    };
+  const restoreBackup =
+    async (
+      file: File
+    ) => {
+
+      const text =
+        await file.text();
+
+      const data =
+        JSON.parse(text);
+
+      const res =
+        await fetch(
+          "/api/restore",
+          {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                data
+              ),
+
+          }
+        );
+
+      if (!res.ok) {
+
+        alert(
+          "Error restaurando backup"
+        );
+
+        return;
+
+      }
+
+      alert(
+        "Backup restaurado"
+      );
+
+      await searchGames();
+
+    };
   const addGame = async () => {
     setSaving(true);
 
@@ -505,35 +608,114 @@ export default function Home() {
       {/* NAVBAR */}
       <header className="border-b border-zinc-800 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">
-            🎲 BoardGames
-          </h1>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">
+              🎲 Mi Ludoteca
+            </h1>
 
-          <p className="text-zinc-400 text-sm">
-            Tu colección personal
-          </p>
+            <p className="text-zinc-400 text-sm mt-1">
+              Tu colección personal
+            </p>
+          </div>
+          <div className="relative">
+
+            <button
+              onClick={() =>
+                setShowMenu(!showMenu)
+              }
+              className="
+          bg-zinc-800
+          hover:bg-zinc-700
+          transition
+          p-3
+          rounded-2xl
+        "
+            >
+              ⚙️
+            </button>
+
+            {showMenu && (
+
+              <div
+                className="
+            absolute
+            right-0
+            mt-2
+            w-56
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-2xl
+            shadow-lg
+            z-50
+            overflow-hidden
+          "
+              >
+
+                <hr className="border-zinc-700" />
+
+                <button
+                  onClick={() => {
+
+                    downloadBackup();
+
+                    setShowMenu(false);
+
+                  }}
+                  className="
+              w-full
+              text-left
+              px-4
+              py-3
+              hover:bg-zinc-700
+            "
+                >
+                  💾 Exportar backup
+                </button>
+
+                <label
+                  className="
+              block
+              px-4
+              py-3
+              hover:bg-zinc-700
+              cursor-pointer
+            "
+                >
+                  📂 Restaurar backup
+
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={async (e) => {
+
+                      const file =
+                        e.target.files?.[0];
+
+                      if (!file) return;
+
+                      await restoreBackup(file);
+
+                      setShowMenu(false);
+
+                    }}
+                  />
+                </label>
+
+              </div>
+
+            )}
+
+          </div>
+
         </div>
       </header>
 
       {/* HERO */}
-      <section className="max-w-7xl mx-auto px-6 py-10">
-
-        <div className="max-w-3xl">
-          <h2 className="text-4xl md:text-5xl font-black leading-tight">
-            Descubre y organiza
-            <span className="text-blue-500">
-              {" "}tus juegos favoritos
-            </span>
-          </h2>
-
-          <p className="mt-4 text-zinc-400">
-            Guarda juegos, crea colecciones y construye tu biblioteca personal.
-          </p>
-        </div>
-
+      <section className="max-w-7xl mx-auto px-6 py-1">
         {/* MINI STATS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
-
           <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl px-4 py-3">
             <div className="flex items-center gap-3">
               <span className="text-xl">🎲</span>
@@ -654,17 +836,16 @@ export default function Home() {
           >
             + Añadir
           </button>
-
         </div>
 
         {/* FILTROS */}
-        <div className="flex flex-wrap gap-3 mt-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl p-3">
+        <div className="flex flex-wrap items-center gap-4 mt-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl p-3">
 
           <button
             onClick={() =>
               setShowFavorites(!showFavorites)
             }
-            className={`px-4 py-2 rounded-xl transition ${showFavorites
+            className={`h-14 px-6 py-2 rounded-2xl transition ${showFavorites
               ? "bg-pink-600"
               : "bg-zinc-800 hover:bg-zinc-700"
               }`}
@@ -677,7 +858,7 @@ export default function Home() {
             onChange={(e) =>
               setSortBy(e.target.value)
             }
-            className="bg-zinc-800 px-4 py-2 rounded-xl border border-zinc-700"
+            className="h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
           >
             <option value="name">Nombre A-Z</option>
             <option value="favorite">Favoritos primero</option>
@@ -690,7 +871,7 @@ export default function Home() {
             onChange={(e) =>
               setCategoryFilter(e.target.value)
             }
-            className="bg-zinc-800 px-4 py-2 rounded-xl border border-zinc-700"
+            className="h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
           >
             <option value="all">Todas</option>
             <option value="Estrategia">🧠 Estrategia</option>
@@ -700,7 +881,7 @@ export default function Home() {
             <option value="Eurogame">🏰 Eurogame</option>
           </select>
 
-          <div className="flex bg-zinc-800 rounded-xl overflow-hidden">
+          <div className="h-14 flex bg-zinc-800 rounded-xl overflow-hidden">
 
             <button
               onClick={() =>
@@ -727,19 +908,18 @@ export default function Home() {
             </button>
 
           </div>
-          <button
-            onClick={() => {
-
-              setSearch("");
-
-              setCategoryFilter("all");
-
-              setShowFavorites(false);
-
-            }}
-          >
-            Limpiar filtros
-          </button>
+          <div className="ml-auto">
+            <button
+              onClick={() => {
+                setSearch("");
+                setCategoryFilter("all");
+                setShowFavorites(false);
+              }}
+              className="h-14 px-6 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-2 whitespace-nowrap">
+              🧹
+              Limpiar filtros
+            </button>
+          </div>
         </div>
 
       </section>
