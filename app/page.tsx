@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import GameCard from "@/components/GameCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "next-auth/react";
 
 type Game = {
   id: number;
@@ -702,7 +703,20 @@ export default function Home() {
                     }}
                   />
                 </label>
+                <hr className="border-zinc-700" />
 
+                <button
+                  onClick={() => signOut()}
+                  className="
+    w-full
+    text-left
+    px-4
+    py-3
+    hover:bg-zinc-700
+  "
+                >
+                  🚪 Cerrar sesión
+                </button>
               </div>
 
             )}
