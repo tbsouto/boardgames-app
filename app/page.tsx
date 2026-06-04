@@ -695,7 +695,13 @@ export default function Home() {
                         e.target.files?.[0];
 
                       if (!file) return;
-
+                      if (
+                        !confirm(
+                          "¿Seguro que quieres restaurar este backup?"
+                        )
+                      ) {
+                        return;
+                      }
                       await restoreBackup(file);
 
                       setShowMenu(false);

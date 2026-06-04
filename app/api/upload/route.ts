@@ -1,8 +1,6 @@
-import { v2 as cloudinary }
-    from "cloudinary";
-
-import { NextResponse }
-    from "next/server";
+import { auth } from "@/auth";
+import { v2 as cloudinary } from "cloudinary";
+import { NextResponse } from "next/server";
 
 cloudinary.config({
 
@@ -23,7 +21,16 @@ cloudinary.config({
 export async function POST(
     req: Request
 ) {
+    const session = await auth();
 
+    if (!session) {
+
+        return Response.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+        );
+
+    }
     try {
 
         const formData =
@@ -46,15 +53,43 @@ export async function POST(
             );
 
         }
+        const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp",
+        ];
 
-        if (!file) {
+        if (
+            !allowedTypes.includes(
+                file.type
+            )
+        ) {
 
             return NextResponse.json(
                 {
                     error:
-                        "No file uploaded"
+                        "Formato no permitido",
                 },
-                { status: 400 }
+                {
+                    status: 400,
+                }
+            );
+
+        }
+        if (
+            file.size >
+            5 * 1024 * 1024
+        ) {
+
+            return NextResponse.json(
+                {
+                    error:
+                        "Máximo 5 MB",
+                },
+                {
+                    status: 400,
+                }
             );
 
         }

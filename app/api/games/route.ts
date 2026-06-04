@@ -1,39 +1,50 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+
+  }
   try {
     const body = await req.json();
     const existing =
-    await prisma.game.findMany({
-      where: {
-        name: {
-          contains: body.name.trim(),
+      await prisma.game.findMany({
+        where: {
+          name: {
+            contains: body.name.trim(),
+          },
         },
-      },
-    });
-  
-  const duplicate =
-    existing.find(
-      game =>
-        game.name.trim().toLowerCase() ===
-        body.name.trim().toLowerCase()
-    );
-  
-  if (duplicate) {
-  
-    return Response.json(
-      {
-        error:
-          "Ese juego ya existe",
-      },
-      {
-        status: 400,
-      }
-    );
-  
-  }
-  
+      });
+
+    const duplicate =
+      existing.find(
+        game =>
+          game.name.trim().toLowerCase() ===
+          body.name.trim().toLowerCase()
+      );
+
+    if (duplicate) {
+
+      return Response.json(
+        {
+          error:
+            "Ese juego ya existe",
+        },
+        {
+          status: 400,
+        }
+      );
+
+    }
+
     const game = await prisma.game.create({
       data: {
         name: body.name,
@@ -57,6 +68,16 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+
+  }
   try {
     const { searchParams } = new URL(req.url);
 
@@ -89,6 +110,16 @@ export async function DELETE(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+
+  }
   try {
     const body = await req.json();
 
@@ -119,6 +150,16 @@ export async function PUT(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+
+  }
   try {
     const body = await req.json();
 
@@ -130,11 +171,11 @@ export async function PATCH(req: Request) {
         ...(body.favorite !== undefined && {
           favorite: body.favorite,
         }),
-      
+
         ...(body.rating !== undefined && {
           rating: Number(body.rating),
         }),
-      
+
         ...(body.notes !== undefined && {
           notes: body.notes,
         }),
