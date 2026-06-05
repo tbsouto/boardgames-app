@@ -1,8 +1,9 @@
 ﻿"use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import GameCard from "@/components/GameCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 type Game = {
   id: number;
@@ -48,7 +49,9 @@ export default function Home() {
   const [expansionName, setExpansionName] = useState("");
   const [saving, setSaving] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { data: session } = useSession();
+  
   const searchGames = async () => {
     setLoading(true);
 
@@ -94,6 +97,44 @@ export default function Home() {
 
     return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+
+    if (!showMenu) return;
+    console.log("menu abierto");
+    function handleClickOutside(
+      event: MouseEvent
+    ) {
+
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        console.log("click fuera");
+        setShowMenu(false);
+
+      }
+
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+
+    };
+
+  }, [showMenu]);
+
   const downloadBackup =
     async () => {
 
@@ -405,7 +446,7 @@ export default function Home() {
     async (id: number) => {
       if (
         !confirm(
-          "¿Seguro que quieres borrar este juego?"
+          "¿Seguro que quieres borrar esta expansión?"
         )
       ) {
         return;
@@ -618,8 +659,7 @@ export default function Home() {
               Tu colección personal
             </p>
           </div>
-          <div className="relative">
-
+          <div ref={menuRef} className="relative">
             <button
               onClick={() =>
                 setShowMenu(!showMenu)
@@ -654,7 +694,19 @@ export default function Home() {
               >
 
                 <hr className="border-zinc-700" />
+                <div className="px-4 py-3">
 
+                  <div className="text-xs text-zinc-500">
+                    Conectado como
+                  </div>
+
+                  <div className="text-sm font-medium truncate">
+                    {session?.user?.email}
+                  </div>
+
+                </div>
+
+                <hr className="border-zinc-700" />
                 <button
                   onClick={() => {
 
@@ -838,24 +890,66 @@ export default function Home() {
         {/* SEARCH + ADD */}
         <div className="mt-8 flex flex-col md:flex-row gap-3">
 
-          <input
-            type="text"
-            placeholder="🔍 Buscar juego..."
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            className="flex-1 p-4 rounded-2xl bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="relative flex-1">
+
+            <input
+              type="text"
+              placeholder="Buscar juego..."
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+              className="
+        w-full
+        p-4
+        pr-12
+        rounded-2xl
+        bg-zinc-800
+        border
+        border-zinc-700
+      "
+            />
+
+            {search && (
+              <button
+                onClick={() => {
+                  setSearch("");
+                  searchGames();
+                }}
+                className="
+          absolute
+          right-4
+          top-1/2
+          -translate-y-1/2
+          text-zinc-400
+          hover:text-white
+        "
+              >
+                ✕
+              </button>
+            )}
+
+          </div>
 
           <button
             onClick={() =>
               setShowModal(true)
             }
-            className="bg-green-600 hover:bg-green-700 transition px-6 rounded-2xl font-semibold"
+            className="
+            w-full
+            md:w-auto
+            bg-green-600
+            hover:bg-green-700
+            transition
+            px-6
+            py-4
+            rounded-2xl
+            font-semibold
+          "
           >
             + Añadir
           </button>
+
         </div>
 
         {/* FILTROS */}
@@ -865,7 +959,7 @@ export default function Home() {
             onClick={() =>
               setShowFavorites(!showFavorites)
             }
-            className={`h-14 px-6 py-2 rounded-2xl transition ${showFavorites
+            className={`w-full sm:w-auto h-14 px-6 py-2 rounded-2xl transition ${showFavorites
               ? "bg-pink-600"
               : "bg-zinc-800 hover:bg-zinc-700"
               }`}
@@ -878,7 +972,7 @@ export default function Home() {
             onChange={(e) =>
               setSortBy(e.target.value)
             }
-            className="h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
+            className="w-full sm:w-auto h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
           >
             <option value="name">Nombre A-Z</option>
             <option value="favorite">Favoritos primero</option>
@@ -891,7 +985,7 @@ export default function Home() {
             onChange={(e) =>
               setCategoryFilter(e.target.value)
             }
-            className="h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
+            className="w-full sm:w-auto h-14 bg-zinc-800 px-6 py-2 rounded-2xl border border-zinc-700"
           >
             <option value="all">Todas</option>
             <option value="Estrategia">🧠 Estrategia</option>
@@ -901,7 +995,7 @@ export default function Home() {
             <option value="Eurogame">🏰 Eurogame</option>
           </select>
 
-          <div className="h-14 flex bg-zinc-800 rounded-xl overflow-hidden">
+          <div className="h-14 flex w-full sm:w-auto">
 
             <button
               onClick={() =>
@@ -928,7 +1022,7 @@ export default function Home() {
             </button>
 
           </div>
-          <div className="ml-auto">
+          <div className="w-full sm:w-auto sm:ml-auto">
             <button
               onClick={() => {
                 setSearch("");

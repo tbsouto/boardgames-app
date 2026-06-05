@@ -4,24 +4,15 @@ import type {
 } from "next";
 
 import "./globals.css";
+import Providers from "./providers";
 
-export const metadata:
-Metadata = {
-
-  title:
-    "BoardGames",
-
-  description:
-    "Colección de juegos",
-
+export const metadata: Metadata = {
+  title: "BoardGames",
+  description: "Colección de juegos",
 };
 
-export const viewport:
-Viewport = {
-
-  themeColor:
-    "#111827",
-
+export const viewport: Viewport = {
+  themeColor: "#111827",
 };
 
 export default function RootLayout({
@@ -29,19 +20,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
-
     <html lang="es">
-
       <body>
-
-        {children}
-
+        <Providers>
+          {children}
+        </Providers>
       </body>
-
     </html>
-
   );
-
 }
