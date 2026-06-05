@@ -942,7 +942,7 @@ export default function Home() {
             hover:bg-green-700
             transition
             px-6
-            py-3
+            py-4
             rounded-2xl
             font-semibold
           "
@@ -959,7 +959,7 @@ export default function Home() {
             onClick={() =>
               setShowFavorites(!showFavorites)
             }
-            className={`w-full sm:w-auto h-14 px-5 py-3 rounded-2xl transition ${showFavorites
+            className={`flex-1 sm:flex-none h-14 px-6 py-2 rounded-2xl transition ${showFavorites
               ? "bg-pink-600"
               : "bg-zinc-800 hover:bg-zinc-700"
               }`}
@@ -995,7 +995,7 @@ export default function Home() {
             <option value="Eurogame">🏰 Eurogame</option>
           </select>
 
-          <div className="flex justify-center">
+          <div className="h-14 flex mx-auto">
 
             <button
               onClick={() =>
@@ -1022,14 +1022,14 @@ export default function Home() {
             </button>
 
           </div>
-          <div className="w-full sm:w-auto sm:ml-auto">
+          <div className="flex-1 sm:flex-none sm:ml-auto">
             <button
               onClick={() => {
                 setSearch("");
                 setCategoryFilter("all");
                 setShowFavorites(false);
               }}
-              className="h-14 px-5 py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-2 whitespace-nowrap">
+              className="w-full h-14 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-2 whitespace-nowrap">
               🧹
               Limpiar filtros
             </button>
