@@ -648,7 +648,7 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
       {/* NAVBAR */}
-      <header className="border-b border-zinc-800 backdrop-blur">
+      <header className="border-b border-zinc-800 backdrop-blur relative z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="text-center">
             <h1 className="text-3xl font-bold">
@@ -665,12 +665,12 @@ export default function Home() {
                 setShowMenu(!showMenu)
               }
               className="
-          bg-zinc-800
-          hover:bg-zinc-700
-          transition
-          p-3
-          rounded-2xl
-        "
+                bg-zinc-800
+                hover:bg-zinc-700
+                transition
+                p-3
+                rounded-2xl
+              "
             >
               ⚙️
             </button>
@@ -679,18 +679,18 @@ export default function Home() {
 
               <div
                 className="
-            absolute
-            right-0
-            mt-2
-            w-56
-            bg-zinc-800
-            border
-            border-zinc-700
-            rounded-2xl
-            shadow-lg
-            z-50
-            overflow-hidden
-          "
+                  absolute
+                  right-0
+                  mt-2
+                  w-56
+                  bg-zinc-800
+                  border
+                  border-zinc-700
+                  rounded-2xl
+                  shadow-lg
+                  z-[999]
+                  overflow-hidden
+                "
               >
 
                 <hr className="border-zinc-700" />
@@ -766,12 +766,12 @@ export default function Home() {
                 <button
                   onClick={() => signOut()}
                   className="
-    w-full
-    text-left
-    px-4
-    py-3
-    hover:bg-zinc-700
-  "
+                    w-full
+                    text-left
+                    px-4
+                    py-3
+                    hover:bg-zinc-700
+                  "
                 >
                   🚪 Cerrar sesión
                 </button>
@@ -938,8 +938,8 @@ export default function Home() {
             className="
             w-full
             md:w-auto
-            bg-green-600
-            hover:bg-green-700
+            bg-emerald-700
+            hover:bg-emerald-600
             transition
             px-6
             py-4
