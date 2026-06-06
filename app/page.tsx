@@ -52,6 +52,9 @@ export default function Home() {
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
   const [showFilters, setShowFilters] = useState(false);
+  const [savingSession, setSavingSession] = useState(false);
+  const isEditing = !!editingGame;
+
   const searchGames = async () => {
     setLoading(true);
 
@@ -360,87 +363,117 @@ export default function Home() {
     setEditingNotes(false);
   };
   const addSession = async () => {
+    if (
+      !sessionPlayers.trim() &&
+      !sessionNotes.trim()
+    ) {
 
-    await fetch(
-      "/api/sessions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-        body: JSON.stringify({
-
-          gameId:
-            sessionGame.id,
-
-          players:
-            sessionPlayers,
-
-          notes:
-            sessionNotes
-
-        })
-      }
-    );
-
-    // limpiar inputs
-    setSessionPlayers("");
-    setSessionNotes("");
-
-    // recargar historial
-    const res =
-      await fetch(
-        `/api/sessions?gameId=${sessionGame.id}`
+      alert(
+        "Debes indicar jugadores o alguna nota"
       );
 
-    const data =
-      await res.json();
+      return;
 
-    setSessions(data);
+    }
+    if (savingSession) return;
+
+    setSavingSession(true);
+
+    try {
+      await fetch(
+        "/api/sessions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+
+            gameId:
+              sessionGame.id,
+
+            players:
+              sessionPlayers,
+
+            notes:
+              sessionNotes
+
+          })
+        }
+      );
+
+      setSessionPlayers("");
+      setSessionNotes("");
+
+      const res =
+        await fetch(
+          `/api/sessions?gameId=${sessionGame.id}`
+        );
+
+      const data =
+        await res.json();
+
+      setSessions(data);
+
+    } finally {
+
+      setSavingSession(false);
+
+    }
 
   };
   const addExpansion =
-    async () => {
 
-      await fetch(
+    async () => {
+      if (!expansionName.trim()) {
+
+        alert(
+          "Debes indicar un nombre"
+        );
+
+        return;
+
+      }
+      const createRes = await fetch(
         "/api/expansions",
         {
-
           method: "POST",
-
           headers: {
             "Content-Type":
               "application/json"
           },
 
           body: JSON.stringify({
-
-            gameId:
-              selectedGame.id,
-
-            name:
-              expansionName
-
+            gameId: selectedGame.id,
+            name: expansionName
           })
-
         }
       );
+      const createData =
+        await createRes.json();
 
+      if (!createRes.ok) {
+
+        alert(
+          createData.error ||
+          "Error al crear expansión"
+        );
+
+        return;
+
+      }
       setExpansionName("");
 
       const res =
         await fetch(
-
           `/api/expansions?gameId=${selectedGame.id}`
-
         );
 
       const data =
         await res.json();
 
       setExpansions(data);
-
     };
   const deleteExpansion =
     async (id: number) => {
@@ -1129,20 +1162,54 @@ export default function Home() {
 
             <div className="flex-1 overflow-y-auto p-8">
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div>
+                  {isEditing && (
 
-                <div className="flex gap-2">
-
+                    <label className="block text-sm text-zinc-400 mb-1">
+                      Nombre
+                    </label>
+                  )}
                   <input
                     value={name}
+                    placeholder={
+                      isEditing
+                        ? ""
+                        : "Nombre"
+                    }
                     onChange={(e) =>
                       setName(e.target.value)
                     }
-
-                    placeholder="Nombre"
-
                     className="
-                      flex-1
+                        w-full
+                        p-4
+                        rounded-2xl
+                        bg-zinc-800
+                        border border-zinc-700
+                      "
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div>
+                  {isEditing && (
+                    <label className="block text-sm text-zinc-400 mb-1">
+                      Edad mínima
+                    </label>
+                  )}
+                  <input
+                    type="number"
+                    placeholder={
+                      isEditing
+                        ? ""
+                        : "🎂 Edad mínima"
+                    }
+                    value={minAge}
+                    onChange={(e) =>
+                      setMinAge(e.target.value)
+                    }
+                    className="
+                      w-full
                       p-4
                       rounded-2xl
                       bg-zinc-800
@@ -1150,76 +1217,126 @@ export default function Home() {
                     "
                   />
                 </div>
-                <input
-                  type="number"
-                  placeholder="Edad mínima"
-                  value={minAge}
-                  onChange={(e) =>
-                    setMinAge(e.target.value)
-                  }
-                  className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
-                />
+                <div>
+                  {isEditing && (
 
-                <input
-                  type="text"
-                  placeholder="Jugadores"
-                  value={players}
-                  onChange={(e) =>
-                    setPlayers(e.target.value)
-                  }
-                  className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
-                />
-
-                <input
-                  type="text"
-                  placeholder="Duración"
-                  value={time}
-                  onChange={(e) =>
-                    setTime(e.target.value)
-                  }
-                  className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
-                />
-
-                <select
-                  value={category}
-                  onChange={(e) =>
-                    setCategory(e.target.value)
-                  }
-                  className="p-4 rounded-2xl bg-zinc-800 border border-zinc-700"
-                >
-                  <option>Estrategia</option>
-                  <option>Party</option>
-                  <option>Cooperativo</option>
-                  <option>Familiar</option>
-                  <option>Eurogame</option>
-                </select>
-
+                    <label className="block text-sm text-zinc-400 mb-1">
+                      Jugadores
+                    </label>
+                  )}
+                  <input
+                    type="text"
+                    placeholder={
+                      isEditing
+                        ? ""
+                        : "👥 Jugadores (2-4)"
+                    }
+                    value={players}
+                    onChange={(e) =>
+                      setPlayers(e.target.value)
+                    }
+                    className="
+                    w-full
+                    p-4
+                    rounded-2xl
+                    bg-zinc-800
+                    border border-zinc-700"
+                  />
+                </div>
+                <div>
+                  {isEditing && (
+                    <label className="block text-sm text-zinc-400 mb-1">
+                      Duración
+                    </label>
+                  )}
+                  <input
+                    type="text"
+                    placeholder={
+                      isEditing
+                        ? ""
+                        : "⏱️ Duración (60-90 min)"
+                    }
+                    value={time}
+                    onChange={(e) =>
+                      setTime(e.target.value)
+                    }
+                    className="
+                    w-full
+                    p-4
+                    rounded-2xl
+                    bg-zinc-800
+                    border border-zinc-700"
+                  />
+                </div>
+                <div className="mt-1 mb-4">
+                  {isEditing && (
+                    <label className="block text-sm text-zinc-400 mb-1">
+                      Categoría
+                    </label>
+                  )}
+                  <select
+                    value={category}
+                    onChange={(e) =>
+                      setCategory(e.target.value)
+                    }
+                    className="
+                      w-full
+                      p-4
+                      rounded-2xl
+                      bg-zinc-800
+                      border border-zinc-700
+                    "
+                  >
+                    <option>Estrategia</option>
+                    <option>Party</option>
+                    <option>Cooperativo</option>
+                    <option>Familiar</option>
+                    <option>Eurogame</option>
+                  </select>
+                </div>
               </div>
-
-              <textarea
-                placeholder="Descripción"
-                value={description}
-                onChange={(e) =>
-                  setDescription(
-                    e.target.value
-                  )
-                }
-                className="w-full mt-6 p-4 rounded-2xl bg-zinc-800 border border-zinc-700 min-h-[220px]"
-              />
-
+              <div>
+                {isEditing && (
+                  <label className="block text-sm text-zinc-400 mb-1">
+                    Descripción
+                  </label>
+                )}
+                <textarea
+                  placeholder={
+                    isEditing
+                      ? ""
+                      : "Descripción"
+                  }
+                  value={description}
+                  onChange={(e) =>
+                    setDescription(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-1
+                    p-4
+                    rounded-2xl
+                    bg-zinc-800
+                    border border-zinc-700
+                    min-h-[220px]
+                  "
+                />
+              </div>
               <label
                 className="
-    flex items-center
-    justify-center
-    p-4
-    rounded-2xl
-    bg-zinc-800
-    border border-zinc-700
-    cursor-pointer
-    hover:bg-zinc-700
-    transition
-    mt-4
-  "
+                  flex items-center
+                  justify-center
+                  p-4
+                  rounded-2xl
+                  bg-zinc-800
+                  border border-zinc-700
+                  cursor-pointer
+                  hover:bg-zinc-700
+                  transition
+                  mt-4
+                "
               >
 
                 📸 Hacer foto
@@ -1270,12 +1387,12 @@ export default function Home() {
                   src={image}
                   alt="Preview"
                   className="
-    w-full
-    h-48
-    object-cover
-    rounded-2xl
-    mt-4
-  "
+                    w-full
+                    h-48
+                    object-cover
+                    rounded-2xl
+                    mt-4
+                  "
                 />
 
               )}
@@ -1292,7 +1409,7 @@ export default function Home() {
                     }
                   }
                 }}
-                className="mt-8 bg-green-600 hover:bg-green-700 transition px-8 py-4 rounded-2xl font-semibold"
+                className="mt-8 bg-emerald-700 hover:bg-emerald-600 transition px-8 py-4 rounded-2xl font-semibold"
                 disabled={saving}
               >
                 {
@@ -1373,9 +1490,24 @@ export default function Home() {
 
               <button
                 onClick={addSession}
-                className="mt-4 bg-green-600 px-5 py-3 rounded-xl"
+                disabled={savingSession}
+                className="
+                  bg-emerald-700
+                  hover:bg-emerald-600
+                  disabled:bg-zinc-700
+                  disabled:cursor-not-allowed
+                  transition
+                  px-6
+                  py-3
+                  rounded-2xl
+                  font-semibold
+                "
               >
-                Guardar partida
+                {
+                  savingSession
+                    ? "Guardando..."
+                    : "Guardar partida"
+                }
               </button>
 
               <h3 className="mt-8 text-xl font-bold">
@@ -1435,24 +1567,6 @@ export default function Home() {
                         </button>
 
                       </div>
-
-                      <p className="text-sm text-zinc-400">
-
-                        📅 {
-                          new Date(
-                            session.date
-                          ).toLocaleDateString(
-                            "es-ES"
-                          )
-                        }
-
-                        {" · "}
-
-                        👥 {
-                          session.players
-                        }
-
-                      </p>
 
                       {session.notes && (
 
@@ -1665,7 +1779,7 @@ export default function Home() {
 
                             <button
                               onClick={saveNotes}
-                              className="bg-green-600 px-4 py-2 rounded-xl"
+                              className="bg-emerald-700 px-4 py-2 rounded-xl"
                             >
                               Guardar
                             </button>
@@ -1755,7 +1869,7 @@ export default function Home() {
                               addExpansion
                             }
 
-                            className="bg-green-600 px-4 rounded-xl"
+                            className="bg-emerald-700 px-4 rounded-xl"
 
                           >
 

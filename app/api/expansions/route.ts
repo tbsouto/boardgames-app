@@ -32,7 +32,46 @@ export async function POST(req: Request) {
 
     const body =
         await req.json();
+    if (
+        !body.name?.trim()
+    ) {
 
+        return NextResponse.json(
+            {
+                error:
+                    "Nombre requerido"
+            },
+            {
+                status: 400
+            }
+        );
+
+    }
+    const existing =
+        await prisma.expansion.findFirst({
+
+            where: {
+                gameId:
+                    Number(body.gameId),
+
+                name:
+                    body.name.trim(),
+            },
+
+        });
+
+    if (existing) {
+        return NextResponse.json(
+            {
+                error:
+                    "La expansión ya existe"
+            },
+            {
+                status: 400
+            }
+        );
+
+    }
     const expansion =
 
         await prisma.expansion.create({
