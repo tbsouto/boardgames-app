@@ -51,7 +51,7 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
-  
+  const [showFilters, setShowFilters] = useState(false);
   const searchGames = async () => {
     setLoading(true);
 
@@ -949,17 +949,48 @@ export default function Home() {
           >
             + Añadir
           </button>
-
+          <button
+            onClick={() =>
+              setShowFilters(!showFilters)
+            }
+            className="
+              mt-3
+              w-full
+              h-14
+              rounded-2xl
+              bg-zinc-800
+              hover:bg-zinc-700
+              transition
+              md:hidden
+            "
+          >
+            {showFilters
+              ? "✖ Ocultar filtros"
+              : "⚙️ Mostrar filtros"}
+          </button>
         </div>
 
         {/* FILTROS */}
-        <div className="flex flex-wrap items-center gap-4 mt-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl p-3">
-
+        <div
+          className={`
+            ${showFilters ? "flex" : "hidden"}
+            md:flex
+            flex-wrap
+            items-center
+            gap-4
+            mt-5
+            bg-zinc-900/50
+            border
+            border-zinc-800
+            rounded-2xl
+            p-3
+          `}
+        >
           <button
             onClick={() =>
               setShowFavorites(!showFavorites)
             }
-            className={`flex-1 sm:flex-none h-14 px-6 py-2 rounded-2xl transition ${showFavorites
+            className={`flex-1 sm:flex-none h-12 px-6 py-2 rounded-2xl transition ${showFavorites
               ? "bg-pink-600"
               : "bg-zinc-800 hover:bg-zinc-700"
               }`}
@@ -1029,7 +1060,7 @@ export default function Home() {
                 setCategoryFilter("all");
                 setShowFavorites(false);
               }}
-              className="w-full h-14 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-2 whitespace-nowrap">
+              className="w-full h-12 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition flex items-center gap-2 whitespace-nowrap">
               🧹
               Limpiar filtros
             </button>
