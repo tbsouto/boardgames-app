@@ -135,7 +135,7 @@ export default function GameCard({
         </div>
 
         <div className="p-4 md:p-6">
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold line-clamp-2 min-h-[72px]">
             {game.name}
           </h2>
           <div

@@ -42,7 +42,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [category, setCategory] = useState("Estrategia");
+  const [category, setCategory] = useState("all");
   const [sessionPlayers, setSessionPlayers] = useState("");
   const [sessionNotes, setSessionNotes] = useState("");
   const [expansions, setExpansions] = useState<any[]>([]);
@@ -1057,6 +1057,9 @@ export default function Home() {
             <option value="Cooperativo">🤝 Cooperativo</option>
             <option value="Familiar">👨‍👩‍👧 Familiar</option>
             <option value="Eurogame">🏰 Eurogame</option>
+            <option value="Confrontación">⚔️ Confrontación</option>
+            <option value="Deducción">🎭 Deducción</option>
+            <option value="Cartas">🃏 Cartas</option>
           </select>
 
           <div className="h-14 flex mx-auto">
@@ -1292,6 +1295,9 @@ export default function Home() {
                     <option>Cooperativo</option>
                     <option>Familiar</option>
                     <option>Eurogame</option>
+                    <option>Confrontación</option>
+                    <option>Deducción</option>
+                    <option>Cartas</option>
                   </select>
                 </div>
               </div>
