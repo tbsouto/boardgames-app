@@ -1060,6 +1060,7 @@ export default function Home() {
             <option value="Confrontación">⚔️ Confrontación</option>
             <option value="Deducción">🎭 Deducción</option>
             <option value="Cartas">🃏 Cartas</option>
+            <option value="Cartas">🧩 Lógica</option>
           </select>
 
           <div className="h-14 flex mx-auto">
@@ -1298,6 +1299,7 @@ export default function Home() {
                     <option>Confrontación</option>
                     <option>Deducción</option>
                     <option>Cartas</option>
+                    <option>Lógica</option>
                   </select>
                 </div>
               </div>
