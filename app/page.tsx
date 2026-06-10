@@ -1427,15 +1427,55 @@ export default function Home() {
                 {
                   cropImage && (
 
-                    <img
-                      src={cropImage}
-                      alt="Preview"
+                    <div
                       className="
-                        w-full
-                        mt-4
-                        rounded-2xl
+                        fixed inset-0
+                        z-[999]
+                        bg-black/90
+                        flex flex-col
+                        items-center
+                        justify-center
+                        p-4
                       "
-                    />
+                    >
+
+                      <img
+                        src={cropImage}
+                        alt="Preview"
+                        className="
+                          max-h-[70vh]
+                          rounded-2xl
+                        "
+                      />
+
+                      <div className="flex gap-4 mt-6">
+
+                        <button
+                          onClick={() =>
+                            setCropImage(null)
+                          }
+                          className="
+                            px-6 py-3
+                            rounded-xl
+                            bg-zinc-700
+                          "
+                        >
+                          Cancelar
+                        </button>
+
+                        <button
+                          className="
+                            px-6 py-3
+                            rounded-xl
+                            bg-emerald-600
+                          "
+                        >
+                          Usar foto
+                        </button>
+
+                      </div>
+
+                    </div>
 
                   )
                 }
