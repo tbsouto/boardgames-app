@@ -35,7 +35,7 @@ export default function GameCard({
   onSession,
 }: Props) {
   return (
-    
+
     <motion.div
       whileHover={{ y: -8 }}
       whileTap={{ scale: 0.98 }}
@@ -46,8 +46,7 @@ export default function GameCard({
           viewMode === "cards"
 
             ? "group relative bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-xl cursor-pointer"
-
-            : "group relative flex items-center gap-6 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 cursor-pointer"
+            : "group relative flex gap-6 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 cursor-pointer"
         }
       >
         <button
@@ -63,7 +62,10 @@ export default function GameCard({
               onDelete();
             }
           }}
-          className="absolute top-4 right-4 z-20 bg-black/70 hover:bg-red-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur"
+          className={`${viewMode === "cards"
+            ? "absolute top-4 right-4"
+            : "hidden"
+            } z-20 bg-black/70 hover:bg-red-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur`}
         >
           🗑️
         </button>
@@ -74,7 +76,10 @@ export default function GameCard({
 
             onEdit();
           }}
-          className="absolute top-4 right-16 z-20 bg-black/70 hover:bg-blue-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur"
+          className={`${viewMode === "cards"
+            ? "absolute top-4 right-16"
+            : "hidden"
+            } z-20 bg-black/70 hover:bg-red-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur`}
         >
           ✏️
         </button>
@@ -87,7 +92,10 @@ export default function GameCard({
             onSession();
 
           }}
-          className="absolute top-4 right-28 z-20 bg-black/70 hover:bg-green-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur"
+          className={`${viewMode === "cards"
+            ? "absolute top-4 right-28"
+            : "hidden"
+            } z-20 bg-black/70 hover:bg-red-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur`}
         >
           🎲
         </button>
@@ -98,9 +106,12 @@ export default function GameCard({
 
             onFavorite();
           }}
-          className={`absolute top-4 left-4 z-20 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur ${game.favorite
-            ? "bg-pink-600"
-            : "bg-black/70 hover:bg-pink-600"
+          className={`${viewMode === "cards"
+            ? "absolute top-4 left-4"
+            : "hidden"
+            } z-20 bg-black/70 hover:bg-red-600 transition w-10 h-10 rounded-full flex items-center justify-center text-lg backdrop-blur ${game.favorite
+              ? "bg-pink-600"
+              : "bg-black/70 hover:bg-pink-600"
             }`}
         >
           ❤️
@@ -125,17 +136,21 @@ export default function GameCard({
               alt={game.name}
               className={
                 viewMode === "cards"
-
-                  ? "h-56 object-contain group-hover:scale-105 transition duration-500 rounded-xl"
-
-                  : "w-20 h-28 object-cover rounded-lg"
+                  ? "h-48 w-full object-contain group-hover:scale-105 transition duration-500 rounded-xl"
+                  : "w-28 h-40 object-cover rounded-lg"
               }
             />
           </div>
         </div>
 
-        <div className="p-4 md:p-6">
-          <h2 className="text-2xl font-bold line-clamp-2 min-h-[72px]">
+        <div className="flex flex-col flex-1 pt-3 px-5">
+          <h2
+            className={
+              viewMode === "cards"
+                ? "text-2xl font-bold line-clamp-2 min-h-[64px]"
+                : "text-xl font-bold"
+            }
+          >
             {game.name}
           </h2>
           <div
@@ -156,7 +171,7 @@ export default function GameCard({
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-2">
 
             <p className="text-sm text-zinc-400">
               👥 {game.players}
@@ -166,15 +181,72 @@ export default function GameCard({
               🎂 {game.minAge}+
             </p>
 
-            <div className="mt-3">
+            <div className="mt-1">
               <span className="bg-blue-900/40 px-3 py-1 rounded-full text-xs">
                 🏷️ {game.category}
               </span>
             </div>
+            {viewMode === "list" && (
+              <div
+                className="flex gap-2 mt-4"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFavorite();
+                  }}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center ${game.favorite
+                    ? "bg-pink-600"
+                    : "bg-zinc-800 hover:bg-pink-600"
+                    }`}
+                >
+                  ❤️
+                </button>
 
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSession();
+                  }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800 hover:bg-green-600"
+                >
+                  🎲
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800 hover:bg-blue-600"
+                >
+                  ✏️
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    const confirmed = confirm(
+                      `¿Eliminar "${game.name}"?`
+                    );
+
+                    if (confirmed) {
+                      onDelete();
+                    }
+                  }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800 hover:bg-red-600"
+                >
+                  🗑️
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
-  );  
+  );
 }

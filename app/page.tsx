@@ -41,6 +41,15 @@ export default function Home() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  useEffect(() => {
+    const mobile =
+      window.innerWidth < 768;
+    setViewMode(
+      mobile
+        ? "list"
+        : "cards"
+    );
+  }, []);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [category, setCategory] = useState("all");
   const [sessionPlayers, setSessionPlayers] = useState("");
@@ -54,7 +63,7 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [savingSession, setSavingSession] = useState(false);
   const isEditing = !!editingGame;
-
+  const [cropImage, setCropImage] = useState<string | null>(null);
   const searchGames = async () => {
     setLoading(true);
 
@@ -196,17 +205,55 @@ export default function Home() {
       file: File
     ) => {
 
-      const text =
-        await file.text();
+      let data;
 
-      const data =
-        JSON.parse(text);
+      try {
 
+        const text =
+          await file.text();
+
+        data =
+          JSON.parse(text);
+
+      } catch {
+
+        alert(
+          "El archivo no contiene un JSON válido"
+        );
+
+        return;
+
+      }
+
+      if (
+        !data.games ||
+        !Array.isArray(
+          data.games
+        )
+      ) {
+
+        alert(
+          "Formato de backup no válido"
+        );
+
+        return;
+
+      }
+      if (
+        data.games.length === 0
+      ) {
+
+        alert(
+          "El backup no contiene juegos"
+        );
+
+        return;
+
+      }
       const res =
         await fetch(
           "/api/restore",
           {
-
             method: "POST",
 
             headers: {
@@ -218,7 +265,6 @@ export default function Home() {
               JSON.stringify(
                 data
               ),
-
           }
         );
 
@@ -1355,39 +1401,44 @@ export default function Home() {
                   capture="environment"
                   className="hidden"
 
-                  onChange={async (e) => {
+                  onChange={(e) => {
 
                     const file =
                       e.target.files?.[0];
 
                     if (!file) return;
 
-                    const formData =
-                      new FormData();
+                    const reader =
+                      new FileReader();
 
-                    formData.append(
-                      "file",
-                      file
-                    );
+                    reader.onload = () => {
 
-                    const res =
-                      await fetch(
-                        "/api/upload",
-                        {
-                          method: "POST",
-                          body: formData,
-                        }
+                      setCropImage(
+                        reader.result as string
                       );
 
-                    const data =
-                      await res.json();
+                    };
 
-                    setImage(data.url);
+                    reader.readAsDataURL(file);
 
                   }}
 
                 />
+                {
+                  cropImage && (
 
+                    <img
+                      src={cropImage}
+                      alt="Preview"
+                      className="
+                        w-full
+                        mt-4
+                        rounded-2xl
+                      "
+                    />
+
+                  )
+                }
               </label>
               {image && (
 
