@@ -63,6 +63,7 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [savingSession, setSavingSession] = useState(false);
   const isEditing = !!editingGame;
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cropImage, setCropImage] = useState<string | null>(null);
   const searchGames = async () => {
     setLoading(true);
@@ -723,6 +724,47 @@ export default function Home() {
       setGames(data);
 
     };
+  const usePhoto = async () => {
+
+    if (!selectedFile) return;
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "file",
+      selectedFile
+    );
+
+    const res =
+      await fetch(
+        "/api/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+    const data =
+      await res.json();
+
+    if (!res.ok) {
+
+      alert(
+        data.error ||
+        "Error subiendo imagen"
+      );
+
+      return;
+    }
+
+    setImage(data.url);
+
+    setCropImage(null);
+
+    setSelectedFile(null);
+
+  };
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
@@ -1408,6 +1450,8 @@ export default function Home() {
 
                     if (!file) return;
 
+                    setSelectedFile(file);
+
                     const reader =
                       new FileReader();
 
@@ -1464,6 +1508,7 @@ export default function Home() {
                         </button>
 
                         <button
+                          onClick={usePhoto}
                           className="
                             px-6 py-3
                             rounded-xl
@@ -1472,7 +1517,6 @@ export default function Home() {
                         >
                           Usar foto
                         </button>
-
                       </div>
 
                     </div>
