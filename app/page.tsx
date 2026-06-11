@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import Cropper from "react-easy-crop";
-
+import { getCroppedImg } from "@/lib/cropImage";
 type Game = {
   id: number;
   name: string;
@@ -730,15 +730,32 @@ export default function Home() {
 
     };
   const usePhoto = async () => {
-
-    if (!selectedFile) return;
+    const croppedBlob =
+      await getCroppedImg(
+        cropImage,
+        croppedAreaPixels
+      );
+    if (
+      !cropImage ||
+      !croppedAreaPixels
+    ) return;
 
     const formData =
       new FormData();
 
+    const file =
+      new File(
+        [croppedBlob],
+        "game.jpg",
+        {
+          type:
+            "image/jpeg",
+        }
+      );
+
     formData.append(
       "file",
-      selectedFile
+      file
     );
 
     const res =
