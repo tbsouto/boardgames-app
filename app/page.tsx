@@ -4,6 +4,7 @@ import GameCard from "@/components/GameCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
+import Cropper from "react-easy-crop";
 
 type Game = {
   id: number;
@@ -65,6 +66,10 @@ export default function Home() {
   const isEditing = !!editingGame;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
   const searchGames = async () => {
     setLoading(true);
 
@@ -1483,12 +1488,49 @@ export default function Home() {
                       "
                     >
 
-                      <img
-                        src={cropImage}
-                        alt="Preview"
+                      <div
                         className="
-                          max-h-[70vh]
-                          rounded-2xl
+    relative
+    w-full
+    h-[60vh]
+  "
+                      >
+
+                        <Cropper
+                          image={cropImage}
+                          crop={crop}
+                          zoom={zoom}
+                          aspect={3 / 4}
+                          onCropChange={setCrop}
+                          onZoomChange={setZoom}
+                          onCropComplete={(
+                            _,
+                            croppedAreaPixels
+                          ) =>
+                            setCroppedAreaPixels(
+                              croppedAreaPixels
+                            )
+                          }
+                        />
+
+                      </div>
+                      <input
+                        type="range"
+                        min={1}
+                        max={3}
+                        step={0.1}
+                        value={zoom}
+                        onChange={(e) =>
+                          setZoom(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        className="
+                          w-full
+                          max-w-md
+                          mt-4
                         "
                       />
 
