@@ -42,15 +42,6 @@ export default function Home() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
-  useEffect(() => {
-    const mobile =
-      window.innerWidth < 768;
-    setViewMode(
-      mobile
-        ? "list"
-        : "cards"
-    );
-  }, []);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [category, setCategory] = useState("all");
   const [sessionPlayers, setSessionPlayers] = useState("");
@@ -733,6 +724,10 @@ export default function Home() {
     const croppedBlob =
       await getCroppedImg(
         cropImage,
+        croppedAreaPixels
+      );
+      console.log(
+        "croppedAreaPixels",
         croppedAreaPixels
       );
     if (
@@ -1517,7 +1512,7 @@ export default function Home() {
                           image={cropImage}
                           crop={crop}
                           zoom={zoom}
-                          aspect={3 / 4}
+                          aspect={1}
                           onCropChange={setCrop}
                           onZoomChange={setZoom}
                           onCropComplete={(

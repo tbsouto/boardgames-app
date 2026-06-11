@@ -137,19 +137,19 @@ export default function GameCard({
               className={
                 viewMode === "cards"
                   ? "h-48 w-full object-contain group-hover:scale-105 transition duration-500 rounded-xl"
-                  : "w-28 h-40 object-cover rounded-lg"
+                  : "w-40 h-40 object-cover rounded-lg"
               }
             />
           </div>
         </div>
 
-        <div className="flex flex-col flex-1 pt-3 px-5">
+        <div className="flex flex-col flex-1 pt-4 px-5">
           <h2
             className={
               viewMode === "cards"
                 ? "text-2xl font-bold line-clamp-2 min-h-[64px]"
-                : "text-xl font-bold"
-            }
+                : "text-xl font-bold leading-tight"
+              }
           >
             {game.name}
           </h2>
