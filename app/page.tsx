@@ -726,10 +726,10 @@ export default function Home() {
         cropImage,
         croppedAreaPixels
       );
-      console.log(
-        "croppedAreaPixels",
-        croppedAreaPixels
-      );
+    console.log(
+      "croppedAreaPixels",
+      croppedAreaPixels
+    );
     if (
       !cropImage ||
       !croppedAreaPixels
@@ -782,6 +782,57 @@ export default function Home() {
     setSelectedFile(null);
 
   };
+  const uploadImageFromUrl =
+    async () => {
+
+      if (!image.trim()) {
+
+        alert(
+          "Introduce una URL"
+        );
+
+        return;
+
+      }
+
+      const res =
+        await fetch(
+          "/api/import-image",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify({
+                imageUrl:
+                  image,
+              }),
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+
+        alert(
+          data.error ||
+          "Error importando imagen"
+        );
+
+        return;
+
+      }
+
+      setImage(data.url);
+
+      alert(
+        "Imagen importada"
+      );
+
+    };
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
@@ -1437,59 +1488,96 @@ export default function Home() {
                   "
                 />
               </div>
-              <label
-                className="
-                  flex items-center
-                  justify-center
-                  p-4
-                  rounded-2xl
-                  bg-zinc-800
-                  border border-zinc-700
-                  cursor-pointer
-                  hover:bg-zinc-700
-                  transition
-                  mt-4
-                "
-              >
 
-                📸 Hacer foto
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
+              <div>
+               
+                <button
+                  type="button"
+                  onClick={() => {
 
-                  onChange={(e) => {
+                    if (!name.trim())
+                      return;
 
-                    const file =
-                      e.target.files?.[0];
-
-                    if (!file) return;
-
-                    setSelectedFile(file);
-
-                    const reader =
-                      new FileReader();
-
-                    reader.onload = () => {
-
-                      setCropImage(
-                        reader.result as string
-                      );
-
-                    };
-
-                    reader.readAsDataURL(file);
+                    window.open(
+                      `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
+                        name + " juego de mesa"
+                      )}`,
+                      "_blank"
+                    );
 
                   }}
+                  className="
+                    mt-2
+                    px-4
+                    py-2
+                    rounded-xl
+                    bg-blue-600
+                  "
+                >
+                  🔍 Buscar imagen
+                </button>
+                <button
+                  type="button"
+                  onClick={uploadImageFromUrl}
+                  className="
+                    mt-2
+                    px-4
+                    py-2
+                    rounded-xl
+                    bg-emerald-600
+                  "
+                >
+                  ☁️ Importar imagen
+                </button>
 
-                />
-                {
-                  cropImage && (
 
-                    <div
-                      className="
+                <label
+                  className="
+                    mt-2
+                    px-4
+                    py-2
+                    rounded-xl
+                  "
+                >
+                  📸
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+
+                    onChange={(e) => {
+
+                      const file =
+                        e.target.files?.[0];
+
+                      if (!file) return;
+
+                      setSelectedFile(file);
+
+                      const reader =
+                        new FileReader();
+
+                      reader.onload = () => {
+
+                        setCropImage(
+                          reader.result as string
+                        );
+
+                      };
+
+                      reader.readAsDataURL(file);
+
+                    }}
+
+                  />
+
+                  {
+                    cropImage && (
+
+                      <div
+                        className="
                         fixed inset-0
                         z-[999]
                         bg-black/90
@@ -1498,86 +1586,103 @@ export default function Home() {
                         justify-center
                         p-4
                       "
-                    >
-
-                      <div
-                        className="
-    relative
-    w-full
-    h-[60vh]
-  "
                       >
 
-                        <Cropper
-                          image={cropImage}
-                          crop={crop}
-                          zoom={zoom}
-                          aspect={1}
-                          onCropChange={setCrop}
-                          onZoomChange={setZoom}
-                          onCropComplete={(
-                            _,
-                            croppedAreaPixels
-                          ) =>
-                            setCroppedAreaPixels(
+                        <div
+                          className="
+                          relative
+                          w-full
+                          h-[60vh]
+                        "
+                        >
+
+                          <Cropper
+                            image={cropImage}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={1}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={(
+                              _,
                               croppedAreaPixels
+                            ) =>
+                              setCroppedAreaPixels(
+                                croppedAreaPixels
+                              )
+                            }
+                          />
+
+                        </div>
+                        <input
+                          type="range"
+                          min={1}
+                          max={3}
+                          step={0.1}
+                          value={zoom}
+                          onChange={(e) =>
+                            setZoom(
+                              Number(
+                                e.target.value
+                              )
                             )
                           }
-                        />
-
-                      </div>
-                      <input
-                        type="range"
-                        min={1}
-                        max={3}
-                        step={0.1}
-                        value={zoom}
-                        onChange={(e) =>
-                          setZoom(
-                            Number(
-                              e.target.value
-                            )
-                          )
-                        }
-                        className="
+                          className="
                           w-full
                           max-w-md
                           mt-4
                         "
-                      />
+                        />
 
-                      <div className="flex gap-4 mt-6">
+                        <div className="flex gap-4 mt-6">
 
-                        <button
-                          onClick={() =>
-                            setCropImage(null)
-                          }
-                          className="
+                          <button
+                            onClick={() =>
+                              setCropImage(null)
+                            }
+                            className="
                             px-6 py-3
                             rounded-xl
                             bg-zinc-700
                           "
-                        >
-                          Cancelar
-                        </button>
+                          >
+                            Cancelar
+                          </button>
 
-                        <button
-                          onClick={usePhoto}
-                          className="
+                          <button
+                            onClick={usePhoto}
+                            className="
                             px-6 py-3
                             rounded-xl
                             bg-emerald-600
                           "
-                        >
-                          Usar foto
-                        </button>
+                          >
+                            Usar foto
+                          </button>
+                        </div>
+
                       </div>
 
-                    </div>
-
-                  )
-                }
-              </label>
+                    )
+                  }
+                </label>
+                <input
+                  type="text"
+                  placeholder="URL de imagen"
+                  value={image}
+                  onChange={(e) =>
+                    setImage(e.target.value)
+                  }
+                  className="
+                    w-full
+                    p-4
+                    rounded-2xl
+                    bg-zinc-800
+                    border
+                    border-zinc-700
+                  "
+                />
+              </div>
               {image && (
 
                 <img
