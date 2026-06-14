@@ -6,6 +6,8 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "@/lib/cropImage";
+import GameFormModal from "@/components/GameFormModal";
+
 type Game = {
   id: number;
   name: string;
@@ -833,6 +835,20 @@ export default function Home() {
       );
 
     };
+  const resetForm = () => {
+
+    setEditingGame(null);
+
+    setName("");
+    setDescription("");
+    setPlayers("");
+    setTime("");
+    setMinAge("");
+    setImage("");
+
+    setCategory("Estrategia");
+
+  };
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
@@ -1121,9 +1137,13 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() =>
-              setShowModal(true)
-            }
+            onClick={() => {
+
+              resetForm();
+            
+              setShowModal(true);
+            
+            }}
             className="
             w-full
             md:w-auto
@@ -1261,473 +1281,50 @@ export default function Home() {
         </div>
 
       </section>
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <GameFormModal
+        showModal={showModal}
+        editingGame={editingGame}
+        setShowModal={setShowModal}
+        formData={{
+          name,
+          description,
+          players,
+          time,
+          minAge,
+          category,
+          image,
+        }}
+        setFormData={(data) => {
+          setName(data.name);
+          setDescription(data.description);
+          setPlayers(data.players);
+          setTime(data.time);
+          setMinAge(data.minAge);
+          setCategory(data.category);
+          setImage(data.image);
+        }}
+        onImportImage={uploadImageFromUrl}
+        saving={saving}
+        onSave={async () => {
 
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.9,
-              y: 40
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: 0
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-              y: 20
-            }}
-            transition={{
-              duration: 0.25
-            }}
-            className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-3xl w-full h-[90vh] flex flex-col overflow-hidden"
-          >
+          if (editingGame) {
 
-            {/* CABECERA */}
-            <div className="flex justify-between items-center p-6 border-b border-zinc-800 shrink-0">
+            await editGame();
 
-              <h3 className="text-3xl font-bold">
+          } else {
 
-                {editingGame
-                  ? "Editar juego"
-                  : "Añadir juego"}
+            const ok =
+              await addGame();
 
-              </h3>
+            if (ok) {
+              setShowModal(false);
+            }
 
-              <button
-                onClick={() => {
-                  setShowModal(false);
+          }
 
-                  setEditingGame(null);
+        }}
+      />
 
-                  setName("");
-                  setDescription("");
-                  setPlayers("");
-                  setTime("");
-                  setMinAge("");
-                  setImage("");
-
-                }}
-                className="bg-black/60 hover:bg-zinc-700 transition w-10 h-10 rounded-full flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-            </div>
-
-            {/* CONTENIDO CON SCROLL */}
-
-            <div className="flex-1 overflow-y-auto p-8">
-
-              <div className="space-y-2">
-                <div>
-                  {isEditing && (
-
-                    <label className="block text-sm text-zinc-400 mb-1">
-                      Nombre
-                    </label>
-                  )}
-                  <input
-                    value={name}
-                    placeholder={
-                      isEditing
-                        ? ""
-                        : "Nombre"
-                    }
-                    onChange={(e) =>
-                      setName(e.target.value)
-                    }
-                    className="
-                        w-full
-                        p-4
-                        rounded-2xl
-                        bg-zinc-800
-                        border border-zinc-700
-                      "
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <div>
-                  {isEditing && (
-                    <label className="block text-sm text-zinc-400 mb-1">
-                      Edad mínima
-                    </label>
-                  )}
-                  <input
-                    type="number"
-                    placeholder={
-                      isEditing
-                        ? ""
-                        : "🎂 Edad mínima"
-                    }
-                    value={minAge}
-                    onChange={(e) =>
-                      setMinAge(e.target.value)
-                    }
-                    className="
-                      w-full
-                      p-4
-                      rounded-2xl
-                      bg-zinc-800
-                      border border-zinc-700
-                    "
-                  />
-                </div>
-                <div>
-                  {isEditing && (
-
-                    <label className="block text-sm text-zinc-400 mb-1">
-                      Jugadores
-                    </label>
-                  )}
-                  <input
-                    type="text"
-                    placeholder={
-                      isEditing
-                        ? ""
-                        : "👥 Jugadores (2-4)"
-                    }
-                    value={players}
-                    onChange={(e) =>
-                      setPlayers(e.target.value)
-                    }
-                    className="
-                    w-full
-                    p-4
-                    rounded-2xl
-                    bg-zinc-800
-                    border border-zinc-700"
-                  />
-                </div>
-                <div>
-                  {isEditing && (
-                    <label className="block text-sm text-zinc-400 mb-1">
-                      Duración
-                    </label>
-                  )}
-                  <input
-                    type="text"
-                    placeholder={
-                      isEditing
-                        ? ""
-                        : "⏱️ Duración (60-90 min)"
-                    }
-                    value={time}
-                    onChange={(e) =>
-                      setTime(e.target.value)
-                    }
-                    className="
-                    w-full
-                    p-4
-                    rounded-2xl
-                    bg-zinc-800
-                    border border-zinc-700"
-                  />
-                </div>
-                <div className="mt-1 mb-4">
-                  {isEditing && (
-                    <label className="block text-sm text-zinc-400 mb-1">
-                      Categoría
-                    </label>
-                  )}
-                  <select
-                    value={category}
-                    onChange={(e) =>
-                      setCategory(e.target.value)
-                    }
-                    className="
-                      w-full
-                      p-4
-                      rounded-2xl
-                      bg-zinc-800
-                      border border-zinc-700
-                    "
-                  >
-                    <option>Estrategia</option>
-                    <option>Party</option>
-                    <option>Cooperativo</option>
-                    <option>Familiar</option>
-                    <option>Eurogame</option>
-                    <option>Confrontación</option>
-                    <option>Deducción</option>
-                    <option>Cartas</option>
-                    <option>Lógica</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                {isEditing && (
-                  <label className="block text-sm text-zinc-400 mb-1">
-                    Descripción
-                  </label>
-                )}
-                <textarea
-                  placeholder={
-                    isEditing
-                      ? ""
-                      : "Descripción"
-                  }
-                  value={description}
-                  onChange={(e) =>
-                    setDescription(
-                      e.target.value
-                    )
-                  }
-                  className="
-                    w-full
-                    mt-1
-                    p-4
-                    rounded-2xl
-                    bg-zinc-800
-                    border border-zinc-700
-                    min-h-[220px]
-                  "
-                />
-              </div>
-
-
-              <div>
-               
-                <button
-                  type="button"
-                  onClick={() => {
-
-                    if (!name.trim())
-                      return;
-
-                    window.open(
-                      `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
-                        name + " juego de mesa"
-                      )}`,
-                      "_blank"
-                    );
-
-                  }}
-                  className="
-                    mt-2
-                    px-4
-                    py-2
-                    rounded-xl
-                    bg-blue-600
-                  "
-                >
-                  🔍 Buscar imagen
-                </button>
-                <button
-                  type="button"
-                  onClick={uploadImageFromUrl}
-                  className="
-                    mt-2
-                    px-4
-                    py-2
-                    rounded-xl
-                    bg-emerald-600
-                  "
-                >
-                  ☁️ Importar imagen
-                </button>
-
-
-                <label
-                  className="
-                    mt-2
-                    px-4
-                    py-2
-                    rounded-xl
-                  "
-                >
-                  📸
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-
-                    onChange={(e) => {
-
-                      const file =
-                        e.target.files?.[0];
-
-                      if (!file) return;
-
-                      setSelectedFile(file);
-
-                      const reader =
-                        new FileReader();
-
-                      reader.onload = () => {
-
-                        setCropImage(
-                          reader.result as string
-                        );
-
-                      };
-
-                      reader.readAsDataURL(file);
-
-                    }}
-
-                  />
-
-                  {
-                    cropImage && (
-
-                      <div
-                        className="
-                        fixed inset-0
-                        z-[999]
-                        bg-black/90
-                        flex flex-col
-                        items-center
-                        justify-center
-                        p-4
-                      "
-                      >
-
-                        <div
-                          className="
-                          relative
-                          w-full
-                          h-[60vh]
-                        "
-                        >
-
-                          <Cropper
-                            image={cropImage}
-                            crop={crop}
-                            zoom={zoom}
-                            aspect={1}
-                            onCropChange={setCrop}
-                            onZoomChange={setZoom}
-                            onCropComplete={(
-                              _,
-                              croppedAreaPixels
-                            ) =>
-                              setCroppedAreaPixels(
-                                croppedAreaPixels
-                              )
-                            }
-                          />
-
-                        </div>
-                        <input
-                          type="range"
-                          min={1}
-                          max={3}
-                          step={0.1}
-                          value={zoom}
-                          onChange={(e) =>
-                            setZoom(
-                              Number(
-                                e.target.value
-                              )
-                            )
-                          }
-                          className="
-                          w-full
-                          max-w-md
-                          mt-4
-                        "
-                        />
-
-                        <div className="flex gap-4 mt-6">
-
-                          <button
-                            onClick={() =>
-                              setCropImage(null)
-                            }
-                            className="
-                            px-6 py-3
-                            rounded-xl
-                            bg-zinc-700
-                          "
-                          >
-                            Cancelar
-                          </button>
-
-                          <button
-                            onClick={usePhoto}
-                            className="
-                            px-6 py-3
-                            rounded-xl
-                            bg-emerald-600
-                          "
-                          >
-                            Usar foto
-                          </button>
-                        </div>
-
-                      </div>
-
-                    )
-                  }
-                </label>
-                <input
-                  type="text"
-                  placeholder="URL de imagen"
-                  value={image}
-                  onChange={(e) =>
-                    setImage(e.target.value)
-                  }
-                  className="
-                    w-full
-                    p-4
-                    rounded-2xl
-                    bg-zinc-800
-                    border
-                    border-zinc-700
-                  "
-                />
-              </div>
-              {image && (
-
-                <img
-                  src={image}
-                  alt="Preview"
-                  className="
-                    w-full
-                    h-48
-                    object-cover
-                    rounded-2xl
-                    mt-4
-                  "
-                />
-
-              )}
-              <button
-                onClick={async () => {
-                  if (editingGame) {
-                    await editGame();
-                  } else {
-                    const ok =
-                      await addGame();
-
-                    if (ok) {
-                      setShowModal(false);
-                    }
-                  }
-                }}
-                className="mt-8 bg-emerald-700 hover:bg-emerald-600 transition px-8 py-4 rounded-2xl font-semibold"
-                disabled={saving}
-              >
-                {
-                  saving
-                    ? "Guardando..."
-                    : editingGame
-                      ? "Guardar cambios"
-                      : "Añadir juego"
-                }
-              </button>
-
-            </div>
-
-          </motion.div>
-        </div>
-      )}
       {sessionGame && (
 
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1928,9 +1525,10 @@ export default function Home() {
               {/* CABECERA FIJA */}
               <div className="flex justify-end p-4 border-b border-zinc-800 shrink-0">
                 <button
-                  onClick={() =>
+                  onClick={() =>{
+                    resetForm();
                     setSelectedGame(null)
-                  }
+                  }}
                   className="bg-black/60 hover:bg-zinc-700 transition w-10 h-10 rounded-full flex items-center justify-center"
                 >
                   ✕
